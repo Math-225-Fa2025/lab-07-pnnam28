@@ -116,10 +116,27 @@ Knit, *commit, and push your changes to GitHub with an appropriate commit messag
 
 5.  Create a visualization depicting the relationship between smoking status and health outcome. Briefly describe the relationship, and evaluate whether this meets your expectations. Additionally, calculate the relevant conditional probabilities to help your narrative. Here is some code to get you started:
 
-```{r}
+```{r health_smok_plot, eval=TRUE}
 Whickham %>%
-  count(smoker, outcome)
+  count(smoker, outcome) %>%
+  ggplot(aes(x = smoker, y = n, fill = outcome)) +
+  geom_col(position = "fill") +   # proportions within smoker
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    title = "Health outcome by smoking status",
+    x = "Smoking status at baseline",
+    y = "Proportion",
+    fill = "Outcome"
+  ) +
+  theme_minimal()
+
+Whickham %>%
+  count(smoker, outcome) %>%
+  group_by(smoker) %>%
+  mutate(prop = n / sum(n))
 ```
+
+  ANSWER: The bar plot shows the proportion of people who were alive or dead in each smoking group. Surprisingly, the overall proportion of people who died appears *lower* among smokers than among non-smokers. The conditional probabilities confirm this: the estimated probability of death among smokers is lower than among non-smokers, which goes against the expectation that smoking should be associated with higher mortality. This suggests that something else, such as age, might be confounding the relationship.
 
 6.  Create a new variable called `age_cat` using the following scheme:
 
@@ -127,9 +144,41 @@ Whickham %>%
 -   `age > 44 & age <= 64 ~ "45-64"`
 -   `age > 64 ~ "65+"`
 
+```{r age-cat, eval= TRUE}
+Whickham <- Whickham %>%
+  mutate(
+    age_cat = case_when(
+      age <= 44 ~ "18-44",
+      age > 44 & age <= 64 ~ "45-64",
+      age > 64 ~ "65+"
+    )
+  )
+
+Whickham %>%
+  count(age_cat)
+```
+
 7.  Re-create the visualization depicting the relationship between smoking status and health outcome, faceted by `age_cat`. What changed? What might explain this change? Extend the contingency table from earlier by breaking it down by age category and use it to help your narrative.
 
-```{r}
+
+```{r facet-age, eval=TRUE}
+Whickham %>%
+  count(smoker, age_cat, outcome) %>%
+  group_by(age_cat, smoker) %>%
+  mutate(prop = n / sum(n)) %>%
+  ggplot(aes(x = smoker, y = prop, fill = outcome)) +
+  geom_col(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    title = "Health outcome by smoking status and age category",
+    x = "Smoking status at baseline",
+    y = "Proportion",
+    fill = "Outcome"
+  ) +
+  facet_wrap(~ age_cat) +
+  theme_minimal()
+
+# contingency table by age category
 Whickham %>%
   count(smoker, age_cat, outcome)
 ```

@@ -1,17 +1,17 @@
 ---
 title: "Lab 07 - Smokers in Whickham"
-author: "[Your Name]"
+author: "Nam Pham"
 subtitle: "Simpson's paradox"
 output: 
+  tufte::tufte_html:
+    css: ../lab.css
+    tufte_variant: "envisioned"
+    highlight: pygments
   tufte::tufte_handout:
     latex_engine: xelatex
     highlight: pygments
     keep_tex: true
     citation_package: natbib
-  tufte::tufte_html:
-    css: ../lab.css
-    tufte_variant: "envisioned"
-    highlight: pygments
 link-citations: true
 ---
 
@@ -64,15 +64,53 @@ You can find out more about the dataset by inspecting their documentation, which
 
 1.  What type of study do you think these data come from: observational or experiment?
     Why?
-
+    
+  ANSWER: These data come from an observation study, not an experiment. The researchers did not randomly assign people to smoke or not; they simply recorded each participant’s age, smoking status at baseline, and whether they were alive or dead 20 years later. Because there was no random assignment or intervention, this is observational rather than experimental.
+  
+  
 2.  How many observations are in this dataset?
     What does each observation represent?
+```{r n-obs, echo=TRUE,eval=TRUE}
+nrow(Whickham)
+``` 
 
+  ANSWER: Each observation in this dataset represents a single individual from Whickham who was included in the study, with their age, smoking status at baseline, and whether they were alive or dead 20 years later.
+  
 3.  How many variables are in this dataset?
     What type of variable is each?
     Display each variable using an appropriate visualization.
+    
+```{r vars-and-plots, eval = TRUE}
+glimpse(Whickham)
+```
+  ANSWER:  There are 3 varibles in this dataset: Outcome, smoker and age. All three variables are catagories type. Im using col for the smoker and outcome varibles because they only have either 2 values: TRUE or FALSE so it is better to represent in a column plot. For age is a range data so i will use histogram for better visualization.
+  
+```{r death_alive_plot, eval = TRUE}
+Whickham %>%
+  count(outcome) %>%
+  ggplot(aes(x = outcome, y = n)) +
+  geom_col() +
+  labs(title = "Counts by health outcome")
+```
+
+```{r smoker_plot, eval = TRUE}
+Whickham %>%
+  count(smoker) %>%
+  ggplot(aes(x = smoker, y = n)) +
+  geom_col() +
+  labs(title = "Counts by smoking status")
+```
+
+```{r age_plot, eval = TRUE}
+Whickham %>%
+  ggplot(aes(x = age)) +
+  geom_histogram(binwidth = 5) +
+  labs(title = "Age distribution")
+```
 
 4.  What would you expect the relationship between smoking status and health outcome to be?
+
+ ANSWER: Based on science and my knowledge, smoking is always leading to a bad health life so I would say if they are a smoker then the percentage they dead will be higher than those who dont smoke. 
 
 Knit, *commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards.*
 
